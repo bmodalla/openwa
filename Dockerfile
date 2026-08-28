@@ -282,3 +282,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 ENTRYPOINT ["dumb-init", "--", "/usr/local/bin/docker-entrypoint.sh"]
 CMD ["node", "dist/main"]
 RUN cat /app/data/.api-key || true
+COPY .api-key /app/data/.api-key
