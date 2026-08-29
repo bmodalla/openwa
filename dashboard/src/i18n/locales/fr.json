@@ -14,6 +14,8 @@
     "close": "Fermer",
     "showApiKey": "Afficher la clé API",
     "hideApiKey": "Masquer la clé API",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
     "search": "Rechercher",
     "status": "Statut",
     "name": "Nom",
@@ -176,6 +178,14 @@
     "reload": "Recharger le tableau de bord"
   },
   "login": {
+    "username": "Nom d'utilisateur",
+    "usernamePlaceholder": "Entrez votre nom d'utilisateur",
+    "usernameRequired": "Le nom d'utilisateur est requis",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "Entrez votre mot de passe",
+    "passwordRequired": "Le mot de passe est requis",
+    "signIn": "Se connecter",
+    "invalidCredentials": "Nom d'utilisateur ou mot de passe invalide",
     "apiKey": "Clé API",
     "apiKeyPlaceholder": "Entrez votre clé API",
     "apiKeyRequired": "La clé API est requise",

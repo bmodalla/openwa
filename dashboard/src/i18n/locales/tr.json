@@ -14,6 +14,8 @@
     "close": "Kapat",
     "showApiKey": "API anahtarını göster",
     "hideApiKey": "API anahtarını gizle",
+    "showPassword": "Şifreyi göster",
+    "hidePassword": "Şifreyi gizle",
     "search": "Ara",
     "status": "Durum",
     "name": "Ad",
@@ -176,6 +178,14 @@
     "reload": "Kontrol Panelini Yeniden Yükle"
   },
   "login": {
+    "username": "Kullanıcı Adı",
+    "usernamePlaceholder": "Kullanıcı adınızı girin",
+    "usernameRequired": "Kullanıcı adı zorunludur",
+    "password": "Şifre",
+    "passwordPlaceholder": "Şifrenizi girin",
+    "passwordRequired": "Şifre zorunludur",
+    "signIn": "Giriş Yap",
+    "invalidCredentials": "Geçersiz kullanıcı adı veya şifre",
     "apiKey": "API Anahtarı",
     "apiKeyPlaceholder": "API anahtarınızı girin",
     "apiKeyRequired": "API anahtarı zorunludur",

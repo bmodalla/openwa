@@ -98,13 +98,26 @@ export class ApiKeyCreatedResponseDto extends ApiKeyResponseDto {
   apiKey!: string;
 }
 
-/** Result of `POST /auth/validate` — the guard's verdict on the presented key. */
+export class LoginDto {
+  @ApiProperty({ description: 'Username for authentication', example: 'admin' })
+  @IsString()
+  username!: string;
+
+  @ApiProperty({ description: 'Password for authentication', example: 'admin' })
+  @IsString()
+  password!: string;
+}
+
+/** Result of `POST /auth/validate` — the verdict on the presented credentials. */
 export class ValidateApiKeyResponseDto {
-  @ApiProperty({ description: 'Whether the presented API key is valid.', example: true })
+  @ApiProperty({ description: 'Whether the presented credentials are valid.', example: true })
   valid!: boolean;
 
-  @ApiPropertyOptional({ enum: ApiKeyRole, description: "The key's role; present only when valid." })
+  @ApiPropertyOptional({ enum: ApiKeyRole, description: "The role; present only when valid." })
   role?: ApiKeyRole;
+
+  @ApiPropertyOptional({ description: 'An API key/token usable for subsequent requests.' })
+  apiKey?: string;
 }
 
 export class UpdateApiKeyDto {

@@ -1,29 +1,63 @@
-import { Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
-import { CurrentApiKey } from './decorators/auth.decorators';
-import { ApiKey } from './entities/api-key.entity';
-import { ValidateApiKeyResponseDto } from './dto';
+import { Controller, Post, HttpCode, HttpStatus, Body, Req, UnauthorizedException } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import type { Request } from 'express';
+import { Public } from './decorators/auth.decorators';
+import { ValidateApiKeyResponseDto, LoginDto } from './dto';
+import { AuthService } from './auth.service';
 
 @ApiTags('auth')
+@Public()
 @Controller('auth')
 export class AuthValidateController {
+  constructor(private readonly authService?: AuthService) {}
+
+  @Public()
   @Post('validate')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Validate an API key' })
-  @ApiHeader({ name: 'X-API-Key', description: 'API key to validate' })
-  @ApiResponse({ status: 200, description: 'API key is valid', type: ValidateApiKeyResponseDto })
-  @ApiResponse({ status: 401, description: 'Invalid or missing API key' })
-  validate(@CurrentApiKey() apiKey?: ApiKey): { valid: boolean; role?: string } {
-    // This route is behind the global API-key guard, so only a validated key reaches this handler
-    // (a missing/invalid key 401s first). The guard has already verified the key — including its
-    // client-IP and session-scope restrictions — and attached it to the request. Re-validating here
-    // would repeat that work without the client IP, double-counting usage and, for an IP-restricted
-    // key, failing closed (no IP) and wrongly reporting valid:false. So we trust the guard's result.
-    // The valid:false branch is unreachable in normal operation; it's retained as defense-in-depth in
-    // case the guard config ever changes, keeping the endpoint safe to expose directly.
-    if (!apiKey) {
-      return { valid: false };
+  @ApiOperation({ summary: 'Login using username and password' })
+  @ApiResponse({ status: 200, description: 'Authentication is valid', type: ValidateApiKeyResponseDto })
+  @ApiResponse({ status: 401, description: 'Invalid username or password' })
+  async validate(
+    @Body() body?: LoginDto,
+    @Req() req?: Request,
+  ): Promise<{ valid: boolean; role?: string; apiKey?: string }> {
+    // 1. Primary path: username & password authentication
+    if (body && (body.username !== undefined || body.password !== undefined)) {
+      if (!body.username || !body.password) {
+        throw new UnauthorizedException('Username and password are required');
+      }
+      if (this.authService) {
+        return this.authService.validateCredentials(body.username, body.password);
+      }
+      const expectedUser = process.env.ADMIN_USERNAME || 'admin';
+      const expectedPass = process.env.ADMIN_PASSWORD || 'admin';
+      if (body.username === expectedUser && body.password === expectedPass) {
+        return { valid: true, role: 'admin' };
+      }
+      throw new UnauthorizedException('Invalid username or password');
     }
-    return { valid: true, role: apiKey.role };
+
+    // 2. Session refresh path: existing session token / key in headers on page reload
+    const headerKey = req ? this.extractApiKey(req) : undefined;
+    if (headerKey && this.authService) {
+      const validated = await this.authService.validateApiKey(headerKey);
+      return { valid: true, role: validated.role };
+    }
+
+    throw new UnauthorizedException('Invalid username or password');
+  }
+
+  private extractApiKey(request: Request): string | undefined {
+    const xApiKey = request.headers?.['x-api-key'] as string;
+    if (xApiKey) return xApiKey;
+
+    const authHeader = request.headers?.['authorization'];
+    if (authHeader?.startsWith('Bearer ')) {
+      return authHeader.substring(7);
+    }
+
+    return undefined;
   }
 }
+
+

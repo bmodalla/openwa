@@ -14,6 +14,8 @@
     "close": "Schließen",
     "showApiKey": "API-Schlüssel anzeigen",
     "hideApiKey": "API-Schlüssel ausblenden",
+    "showPassword": "Passwort anzeigen",
+    "hidePassword": "Passwort ausblenden",
     "search": "Suchen",
     "status": "Status",
     "name": "Name",
@@ -176,6 +178,14 @@
     "reload": "Dashboard neu laden"
   },
   "login": {
+    "username": "Benutzername",
+    "usernamePlaceholder": "Benutzername eingeben",
+    "usernameRequired": "Benutzername ist erforderlich",
+    "password": "Passwort",
+    "passwordPlaceholder": "Passwort eingeben",
+    "passwordRequired": "Passwort ist erforderlich",
+    "signIn": "Anmelden",
+    "invalidCredentials": "Ungültiger Benutzername oder Passwort",
     "apiKey": "API-Schlüssel",
     "apiKeyPlaceholder": "API-Schlüssel eingeben",
     "apiKeyRequired": "API-Schlüssel ist erforderlich",

@@ -78,7 +78,11 @@ const fetchCalls: FetchCall[] = [];
 // Per-test body for POST /auth/validate. The home page's stats endpoints need their object shapes
 // ([] would crash Dashboard's overview render); every other request gets an empty list, which the
 // post-login pages' React Query hooks tolerate.
-let validateBody: { valid?: boolean; role?: string } = { valid: true, role: 'operator' };
+let validateBody: { valid?: boolean; role?: string; apiKey?: string } = {
+  valid: true,
+  role: 'operator',
+  apiKey: 'fresh-key',
+};
 
 function installFetchStub(): void {
   globalThis.fetch = (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
@@ -151,16 +155,18 @@ afterEach(() => {
   localStorage.clear();
   sessionStorage.clear();
   fetchCalls.length = 0;
-  validateBody = { valid: true, role: 'operator' };
+  validateBody = { valid: true, role: 'operator', apiKey: 'fresh-key' };
 });
 
-// Types a key into the login form and submits it, then waits until App has applied the role from
+// Types credentials into the login form and submits it, then waits until App has applied the role from
 // the validate response (the synchronous tail of handleLogin).
-async function signIn(apiKey: string): Promise<void> {
+async function signIn(apiKey: string = 'fresh-key'): Promise<void> {
   const { screen, waitFor, fireEvent } = rtl;
-  const input = await screen.findByLabelText('API Key');
-  fireEvent.change(input, { target: { value: apiKey } });
-  fireEvent.submit(input.closest('form')!);
+  const usernameInput = await screen.findByLabelText('Username');
+  const passwordInput = await screen.findByLabelText('Password');
+  fireEvent.change(usernameInput, { target: { value: 'admin' } });
+  fireEvent.change(passwordInput, { target: { value: 'admin' } });
+  fireEvent.submit(usernameInput.closest('form')!);
   await waitFor(() => assert.ok(localStorage.getItem(ROLE_KEY), 'expected a role to be stored after sign-in'));
   // Give the post-login render and its effects a macrotask to fire before counting requests.
   await new Promise(resolve => setTimeout(resolve, 50));
@@ -179,7 +185,7 @@ test('a fresh sign-in makes exactly one /auth/validate request, feeding the role
 });
 
 test('a fresh sign-in with a role-less validate response still degrades to viewer', async () => {
-  validateBody = { valid: true };
+  validateBody = { valid: true, apiKey: 'fresh-key' };
   rtl.render(createElement(App));
 
   await signIn('fresh-key');

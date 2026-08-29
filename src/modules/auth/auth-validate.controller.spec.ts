@@ -1,28 +1,63 @@
 import { AuthValidateController } from './auth-validate.controller';
-import { ApiKey, ApiKeyRole } from './entities/api-key.entity';
+import { ApiKeyRole } from './entities/api-key.entity';
+import { AuthService } from './auth.service';
+import { UnauthorizedException } from '@nestjs/common';
 
 describe('AuthValidateController', () => {
-  const controller = new AuthValidateController();
+  let mockAuthService: Partial<AuthService>;
+  let controller: AuthValidateController;
 
-  const makeKey = (over: Partial<ApiKey> = {}): ApiKey =>
-    ({ id: 'k1', role: ApiKeyRole.OPERATOR, isActive: true, allowedIps: null, ...over }) as ApiKey;
+  beforeEach(() => {
+    mockAuthService = {
+      validateCredentials: jest.fn().mockImplementation((username?: string, password?: string) => {
+        if (username === 'admin' && password === 'admin') {
+          return Promise.resolve({ valid: true, role: ApiKeyRole.ADMIN, apiKey: 'mock_admin_key' });
+        }
+        return Promise.reject(new UnauthorizedException('Invalid username or password'));
+      }),
+      validateApiKey: jest.fn().mockImplementation((key: string) => {
+        if (key === 'valid-session-key') {
+          return Promise.resolve({ id: 'k1', role: ApiKeyRole.ADMIN, isActive: true } as any);
+        }
+        return Promise.reject(new UnauthorizedException('Invalid API key'));
+      }),
+    };
+    controller = new AuthValidateController(mockAuthService as AuthService);
+  });
 
-  it('reports the guard-validated key as valid, echoing its role', () => {
-    expect(controller.validate(makeKey({ role: ApiKeyRole.ADMIN }))).toEqual({
+  it('validates valid username and password credentials (admin / admin)', async () => {
+    const result = await controller.validate({ username: 'admin', password: 'admin' });
+    expect(result).toEqual({
+      valid: true,
+      role: ApiKeyRole.ADMIN,
+      apiKey: 'mock_admin_key',
+    });
+    expect(mockAuthService.validateCredentials).toHaveBeenCalledWith('admin', 'admin');
+  });
+
+  it('rejects invalid username and password credentials', async () => {
+    await expect(controller.validate({ username: 'admin', password: 'wrong' })).rejects.toThrow(
+      UnauthorizedException,
+    );
+  });
+
+  it('rejects when username or password is missing', async () => {
+    await expect(controller.validate({ username: '', password: '' })).rejects.toThrow(
+      UnauthorizedException,
+    );
+    await expect(controller.validate(undefined)).rejects.toThrow(
+      UnauthorizedException,
+    );
+  });
+
+  it('validates existing session key in header on page reload', async () => {
+    const mockReq = { headers: { 'x-api-key': 'valid-session-key' } } as any;
+    const result = await controller.validate(undefined, mockReq);
+    expect(result).toEqual({
       valid: true,
       role: ApiKeyRole.ADMIN,
     });
   });
-
-  it('returns valid:true for an IP-restricted key (no IP-less re-validation false negative)', () => {
-    // The global guard already validated this key against the real client IP and attached it.
-    // The handler must NOT re-validate without an IP, which previously fail-closed and wrongly
-    // reported valid:false for any key carrying an allowedIps restriction.
-    const key = makeKey({ allowedIps: ['10.0.0.0/24'] });
-    expect(controller.validate(key)).toEqual({ valid: true, role: key.role });
-  });
-
-  it('returns valid:false when no key is attached (defense-in-depth)', () => {
-    expect(controller.validate(undefined)).toEqual({ valid: false });
-  });
 });
+
+

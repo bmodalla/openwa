@@ -14,6 +14,8 @@
     "close": "닫기",
     "showApiKey": "API 키 표시",
     "hideApiKey": "API 키 숨기기",
+    "showPassword": "비밀번호 표시",
+    "hidePassword": "비밀번호 숨기기",
     "search": "검색",
     "status": "상태",
     "name": "이름",
@@ -176,6 +178,14 @@
     "reload": "대시보드 새로고침"
   },
   "login": {
+    "username": "사용자 이름",
+    "usernamePlaceholder": "사용자 이름을 입력하세요",
+    "usernameRequired": "사용자 이름이 필요합니다",
+    "password": "비밀번호",
+    "passwordPlaceholder": "비밀번호를 입력하세요",
+    "passwordRequired": "비밀번호가 필요합니다",
+    "signIn": "로그인",
+    "invalidCredentials": "잘못된 사용자 이름 또는 비밀번호입니다",
     "apiKey": "API 키",
     "apiKeyPlaceholder": "API 키를 입력하세요",
     "apiKeyRequired": "API 키가 필요합니다",

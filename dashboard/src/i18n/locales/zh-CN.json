@@ -14,6 +14,8 @@
     "close": "关闭",
     "showApiKey": "显示 API 密钥",
     "hideApiKey": "隐藏 API 密钥",
+    "showPassword": "显示密码",
+    "hidePassword": "隐藏密码",
     "search": "搜索",
     "status": "状态",
     "name": "名称",
@@ -176,6 +178,14 @@
     "reload": "重新加载仪表盘"
   },
   "login": {
+    "username": "用户名",
+    "usernamePlaceholder": "输入你的用户名",
+    "usernameRequired": "必须输入用户名",
+    "password": "密码",
+    "passwordPlaceholder": "输入你的密码",
+    "passwordRequired": "必须输入密码",
+    "signIn": "登录",
+    "invalidCredentials": "用户名或密码无效",
     "apiKey": "API 密钥",
     "apiKeyPlaceholder": "输入你的 API 密钥",
     "apiKeyRequired": "必须输入 API 密钥",

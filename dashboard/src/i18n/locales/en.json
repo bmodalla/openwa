@@ -14,6 +14,8 @@
     "close": "Close",
     "showApiKey": "Show API key",
     "hideApiKey": "Hide API key",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "search": "Search",
     "status": "Status",
     "name": "Name",
@@ -176,6 +178,14 @@
     "reload": "Reload Dashboard"
   },
   "login": {
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "usernameRequired": "Username is required",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "passwordRequired": "Password is required",
+    "signIn": "Sign In",
+    "invalidCredentials": "Invalid username or password",
     "apiKey": "API Key",
     "apiKeyPlaceholder": "Enter your API key",
     "apiKeyRequired": "API key is required",

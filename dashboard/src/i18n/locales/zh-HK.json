@@ -14,6 +14,8 @@
     "close": "關閉",
     "showApiKey": "顯示 API 金鑰",
     "hideApiKey": "隱藏 API 金鑰",
+    "showPassword": "顯示密碼",
+    "hidePassword": "隱藏密碼",
     "search": "搜尋",
     "status": "狀態",
     "name": "名稱",
@@ -176,6 +178,14 @@
     "reload": "重新載入控制面板"
   },
   "login": {
+    "username": "用戶名稱",
+    "usernamePlaceholder": "輸入你的用戶名稱",
+    "usernameRequired": "必須輸入用戶名稱",
+    "password": "密碼",
+    "passwordPlaceholder": "輸入你的密碼",
+    "passwordRequired": "必須輸入密碼",
+    "signIn": "登入",
+    "invalidCredentials": "用戶名稱或密碼無效",
     "apiKey": "API 金鑰",
     "apiKeyPlaceholder": "輸入你的 API 金鑰",
     "apiKeyRequired": "必須輸入 API 金鑰",

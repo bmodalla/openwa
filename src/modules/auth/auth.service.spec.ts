@@ -1094,4 +1094,57 @@ describe('AuthService', () => {
       expect(queried).toBe(createHash('sha256').update('owa_raw_key').digest('hex'));
     });
   });
+
+  // ── validateCredentials ─────────────────────────────────────────
+  describe('validateCredentials', () => {
+    const ORIGINAL_ENV = process.env;
+    beforeEach(() => {
+      process.env = { ...ORIGINAL_ENV };
+    });
+    afterEach(() => {
+      process.env = ORIGINAL_ENV;
+    });
+
+    it('validates default admin credentials and returns an admin key', async () => {
+      process.env.API_MASTER_KEY = 'master-secret-key-123';
+      const res = await service.validateCredentials('admin', 'admin');
+      expect(res).toEqual({
+        valid: true,
+        role: ApiKeyRole.ADMIN,
+        apiKey: 'master-secret-key-123',
+      });
+    });
+
+    it('validates custom ADMIN_USERNAME and ADMIN_PASSWORD env variables', async () => {
+      process.env.ADMIN_USERNAME = 'customuser';
+      process.env.ADMIN_PASSWORD = 'custompassword';
+      process.env.API_MASTER_KEY = 'master-secret-key-123';
+
+      const res = await service.validateCredentials('customuser', 'custompassword');
+      expect(res).toEqual({
+        valid: true,
+        role: ApiKeyRole.ADMIN,
+        apiKey: 'master-secret-key-123',
+      });
+    });
+
+    it('rejects incorrect password', async () => {
+      await expect(service.validateCredentials('admin', 'wrongpassword')).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('rejects incorrect username', async () => {
+      await expect(service.validateCredentials('wronguser', 'admin')).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('rejects missing credentials', async () => {
+      await expect(service.validateCredentials(undefined, undefined)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+  });
 });
+

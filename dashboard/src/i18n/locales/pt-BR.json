@@ -42,6 +42,8 @@
     "unknownError": "Erro desconhecido",
     "showApiKey": "Mostrar chave API",
     "hideApiKey": "Ocultar chave API",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha",
     "retry": "Tentar novamente"
   },
   "theme": {
@@ -176,6 +178,14 @@
     "reload": "Recarregar painel"
   },
   "login": {
+    "username": "Usuário",
+    "usernamePlaceholder": "Insira seu usuário",
+    "usernameRequired": "O usuário é obrigatório",
+    "password": "Senha",
+    "passwordPlaceholder": "Insira sua senha",
+    "passwordRequired": "A senha é obrigatória",
+    "signIn": "Entrar",
+    "invalidCredentials": "Usuário ou senha inválidos",
     "apiKey": "Chave API",
     "apiKeyPlaceholder": "Insira sua chave API",
     "apiKeyRequired": "A chave API é obrigatória",

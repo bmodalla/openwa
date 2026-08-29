@@ -492,4 +492,44 @@ export class AuthService implements OnModuleInit, OnModuleDestroy {
 
     return roleHierarchy[apiKey.role] >= roleHierarchy[requiredRole];
   }
+
+  async validateCredentials(
+    username?: string,
+    password?: string,
+  ): Promise<{ valid: boolean; role: ApiKeyRole; apiKey: string }> {
+    const expectedUsername = process.env.ADMIN_USERNAME || 'admin';
+    const expectedPassword = process.env.ADMIN_PASSWORD || 'admin';
+
+    if (!username || !password || username !== expectedUsername || password !== expectedPassword) {
+      throw new UnauthorizedException('Invalid username or password');
+    }
+
+    const apiKey = await this.getOrCreateAdminApiKey();
+    return {
+      valid: true,
+      role: ApiKeyRole.ADMIN,
+      apiKey,
+    };
+  }
+
+  async getOrCreateAdminApiKey(): Promise<string> {
+    if (process.env.API_MASTER_KEY) {
+      return process.env.API_MASTER_KEY;
+    }
+
+    const bootstrapKey = readBootstrapKey(this.logger);
+    if (bootstrapKey) {
+      const stored = await this.apiKeyRepository.findOne({ where: { keyHash: this.hashKey(bootstrapKey) } });
+      if (stored && stored.isActive && (!stored.expiresAt || stored.expiresAt > new Date())) {
+        return bootstrapKey;
+      }
+    }
+
+    const { rawKey } = await this.createApiKey({
+      name: 'Dashboard Admin Key',
+      role: ApiKeyRole.ADMIN,
+    });
+    return rawKey;
+  }
 }
+
