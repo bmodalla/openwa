@@ -7,14 +7,19 @@ import { languageOptions, resolveSupportedLanguage, type SupportedLanguage } fro
 import { API_BASE_URL } from '../services/api';
 import './Login.css';
 
+// تعريف المتغيرات للـ TypeScript عشان ما يعترض عليهم
+declare const __APP_VERSION__: string;
+declare const __BUILD_TIME__: string;
+
 interface LoginProps {
   onLogin: (apiKey: string, role?: string) => void;
 }
 
 export function Login({ onLogin }: LoginProps) {
   const { t, i18n } = useTranslation();
-  const [apiKey, setApiKey] = useState('');
-  const [showKey, setShowKey] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const currentLang = resolveSupportedLanguage(i18n.resolvedLanguage || i18n.language);
@@ -25,8 +30,12 @@ export function Login({ onLogin }: LoginProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!apiKey.trim()) {
-      setError(t('login.apiKeyRequired'));
+    if (!username.trim()) {
+      setError(t('login.usernameRequired'));
+      return;
+    }
+    if (!password) {
+      setError(t('login.passwordRequired'));
       return;
     }
     setIsLoading(true);
@@ -37,18 +46,16 @@ export function Login({ onLogin }: LoginProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-API-Key': apiKey,
         },
+        body: JSON.stringify({ username: username.trim(), password }),
       });
 
       if (response.ok) {
-        // The validate body already carries the key's role — hand it up so the app can set it
-        // directly instead of re-validating the same key a second time.
-        const data: { role?: string } = await response.json().catch(() => ({}));
-        onLogin(apiKey, data.role);
+        const data: { role?: string; apiKey?: string } = await response.json().catch(() => ({}));
+        onLogin(data.apiKey || 'admin', data.role);
       } else {
         const errorData = await response.json().catch(() => ({}));
-        setError(errorData.message || t('login.invalidKey'));
+        setError(errorData.message || t('login.invalidCredentials'));
       }
     } catch {
       setError(t('login.connectionError'));
@@ -64,10 +71,8 @@ export function Login({ onLogin }: LoginProps) {
           <img src="/openwa_logo.webp" alt="OpenWA" className="logo-icon" />
           <span className="version-info">
             {t('login.version', {
-              version: __APP_VERSION__,
-              // ISO date (YYYYMMDD) so the format is stable across locales/regions instead of the
-              // locale-dependent toLocaleDateString() which renders differently per browser region.
-              date: new Date(__BUILD_TIME__).toISOString().slice(0, 10).replace(/-/g, ''),
+              version: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.0.0',
+              date: typeof __BUILD_TIME__ !== 'undefined' ? new Date(__BUILD_TIME__).toISOString().slice(0, 10).replace(/-/g, '') : '20260829',
             })}
           </span>
         </div>
@@ -84,30 +89,46 @@ export function Login({ onLogin }: LoginProps) {
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="input-group">
-            <label htmlFor="apiKey">{t('login.apiKey')}</label>
+            <label htmlFor="username">{t('login.username')}</label>
             <div className="input-wrapper">
               <input
-                id="apiKey"
-                type={showKey ? 'text' : 'password'}
-                value={apiKey}
-                onChange={e => setApiKey(e.target.value)}
-                placeholder={t('login.apiKeyPlaceholder')}
+                id="username"
+                type="text"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                placeholder={t('login.usernamePlaceholder')}
+                className={error && !username.trim() ? 'error' : ''}
+                autoComplete="username"
+              />
+            </div>
+          </div>
+
+          <div className="input-group">
+            <label htmlFor="password">{t('login.password')}</label>
+            <div className="input-wrapper">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder={t('login.passwordPlaceholder')}
                 className={error ? 'error' : ''}
+                autoComplete="current-password"
               />
               <button
                 type="button"
                 className="toggle-visibility"
-                onClick={() => setShowKey(!showKey)}
-                aria-label={showKey ? t('common.hideApiKey') : t('common.showApiKey')}
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? t('common.hidePassword') : t('common.showPassword')}
               >
-                {showKey ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
             {error && <span className="error-message">{error}</span>}
           </div>
 
           <button type="submit" className="connect-btn" disabled={isLoading}>
-            {isLoading ? t('login.connecting') : t('login.connect')}
+            {isLoading ? t('login.connecting') : t('login.signIn')}
           </button>
         </form>
 
