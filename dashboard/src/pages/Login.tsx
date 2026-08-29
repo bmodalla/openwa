@@ -31,11 +31,11 @@ export function Login({ onLogin }: LoginProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.trim()) {
-      setError(t('login.usernameRequired'));
+      setError(t('login.usernameRequired', 'Username is required'));
       return;
     }
     if (!password) {
-      setError(t('login.passwordRequired'));
+      setError(t('login.passwordRequired', 'Password is required'));
       return;
     }
     setIsLoading(true);
@@ -55,10 +55,10 @@ export function Login({ onLogin }: LoginProps) {
         onLogin(data.apiKey || 'admin', data.role);
       } else {
         const errorData = await response.json().catch(() => ({}));
-        setError(errorData.message || t('login.invalidCredentials'));
+        setError(errorData.message || t('login.invalidCredentials', 'Invalid username or password'));
       }
     } catch {
-      setError(t('login.connectionError'));
+      setError(t('login.connectionError', 'Unable to connect to server. Please try again.'));
     } finally {
       setIsLoading(false);
     }
@@ -73,6 +73,7 @@ export function Login({ onLogin }: LoginProps) {
             {t('login.version', {
               version: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.0.0',
               date: typeof __BUILD_TIME__ !== 'undefined' ? new Date(__BUILD_TIME__).toISOString().slice(0, 10).replace(/-/g, '') : '20260829',
+              defaultValue: `v${typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.0.0'}`,
             })}
           </span>
         </div>
@@ -83,20 +84,20 @@ export function Login({ onLogin }: LoginProps) {
             value={currentLang}
             onChange={value => changeLanguage(value as SupportedLanguage)}
             options={languageOptions.map(opt => ({ value: opt.value, label: opt.label }))}
-            ariaLabel={t('common.language')}
+            ariaLabel={t('common.language', 'Language')}
           />
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="input-group">
-            <label htmlFor="username">{t('login.username')}</label>
+            <label htmlFor="username">{t('login.username', t('common.username', 'Username'))}</label>
             <div className="input-wrapper">
               <input
                 id="username"
                 type="text"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
-                placeholder={t('login.usernamePlaceholder')}
+                placeholder={t('login.usernamePlaceholder', t('login.username', 'Username'))}
                 className={error && !username.trim() ? 'error' : ''}
                 autoComplete="username"
               />
@@ -104,14 +105,14 @@ export function Login({ onLogin }: LoginProps) {
           </div>
 
           <div className="input-group">
-            <label htmlFor="password">{t('login.password')}</label>
+            <label htmlFor="password">{t('login.password', t('common.password', 'Password'))}</label>
             <div className="input-wrapper">
               <input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder={t('login.passwordPlaceholder')}
+                placeholder={t('login.passwordPlaceholder', t('login.password', 'Password'))}
                 className={error ? 'error' : ''}
                 autoComplete="current-password"
               />
@@ -119,7 +120,7 @@ export function Login({ onLogin }: LoginProps) {
                 type="button"
                 className="toggle-visibility"
                 onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? t('common.hidePassword') : t('common.showPassword')}
+                aria-label={showPassword ? t('common.hidePassword', 'Hide password') : t('common.showPassword', 'Show password')}
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
@@ -128,7 +129,7 @@ export function Login({ onLogin }: LoginProps) {
           </div>
 
           <button type="submit" className="connect-btn" disabled={isLoading}>
-            {isLoading ? t('login.connecting') : t('login.signIn')}
+            {isLoading ? t('login.connecting', 'Connecting...') : t('login.signIn', 'Sign In')}
           </button>
         </form>
 
